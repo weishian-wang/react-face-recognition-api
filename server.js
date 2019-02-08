@@ -38,7 +38,7 @@ app.post('/signin', (req, res, next) => {
   });
 
   if (user) {
-    res.status(200).json({
+    res.json({
       id: user.id,
       name: user.name,
       email: user.email,
@@ -60,26 +60,26 @@ app.post('/register', (req, res, next) => {
       return db('login').insert({ hash: hashedPassword, email: email });
     })
     .then(result => {
-      res.status(200).json('You have successfully registered.');
+      res.json('You have successfully registered.');
     })
     .catch(err => res.status(400).json('Unable to register.'));
 });
 
 app.get('/profile/:id', (req, res, next) => {
-  const userId = req.params.id;
+  const id = req.params.id;
   let user;
 
-  database.users.forEach(u => {
-    if (u.id === userId) {
-      user = u;
-    }
-  });
-
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(404).json('User not found.');
-  }
+  db('users')
+    .where({ id })
+    .select('name', 'email', 'entries', 'joined')
+    .then(users => {
+      if (users.length) {
+        user = users[0];
+        return res.json(user);
+      }
+      return res.status(404).json('User not found.');
+    })
+    .catch(err => res.status(400).json('Error getting user profile.'));
 });
 
 app.put('/image', (req, res, next) => {
@@ -94,7 +94,7 @@ app.put('/image', (req, res, next) => {
   });
 
   if (user) {
-    res.status(200).json(user.entries);
+    res.json(user.entries);
   } else {
     res.status(404).json('User not found.');
   }
