@@ -6,12 +6,12 @@ const knex = require('knex');
 
 const app = express();
 const port = 8080;
-const postgres = knex({
+const db = knex({
   client: 'pg',
   connection: {
     host: '127.0.0.1',
     user: 'postgres',
-    password: '',
+    password: 'test',
     database: 'smart-brain'
   }
 });
@@ -52,23 +52,17 @@ app.post('/signin', (req, res, next) => {
 
 app.post('/register', (req, res, next) => {
   const { name, email, password } = req.body;
-  // const hashedPassword = bcrypt.hashSync(password, 12);
+  const hashedPassword = bcrypt.hashSync(password, 12);
 
-  const newUser = {
-    id: '3',
-    name: name,
-    email: email,
-    // password: hashedPassword,
-    password: password,
-    entries: 0,
-    joined: new Date()
-  };
-
-  database.users.push(newUser);
-
-  res
-    .status(200)
-    .json({ message: `${name}, you have successfully registered.` });
+  db('users')
+    .insert({ name: name, email: email, joined: new Date() })
+    .then(result => {
+      return db('login').insert({ hash: hashedPassword, email: email });
+    })
+    .then(result => {
+      res.status(200).json('You have successfully registered.');
+    })
+    .catch(err => res.status(400).json('Unable to register.'));
 });
 
 app.get('/profile/:id', (req, res, next) => {
