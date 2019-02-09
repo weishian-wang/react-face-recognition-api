@@ -24,30 +24,25 @@ app.get('/', (req, res, next) => {
 });
 
 app.post('/signin', (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  let user;
+  const { email, password } = req.body;
 
-  database.users.forEach(u => {
-    // if (email === u.email && bcrypt.compareSync(password, u.password)) {
-    //   user = u;
-    // }
-    if (email === u.email && password === u.password) {
-      user = u;
-    }
-  });
-
-  if (user) {
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      entries: user.entries,
-      joined: user.joined
-    });
-  } else {
-    res.status(404).json({ message: 'User not found.' });
-  }
+  db('login')
+    .where({ email })
+    .select('hash')
+    .then(data => {
+      const hashedPassword = data[0].hash;
+      const isValid = bcrypt.compareSync(password, hashedPassword);
+      if (isValid) {
+        return db('users')
+          .where({ email })
+          .select()
+          .then(userData => res.json(userData[0]))
+          .catch(err => res.status(404).json('Unable to get user.'));
+      } else {
+        res.status(400).json('Wrong credentials.');
+      }
+    })
+    .catch(err => res.status(400).json('Unable to login.'));
 });
 
 app.post('/register', (req, res, next) => {
@@ -66,9 +61,7 @@ app.post('/register', (req, res, next) => {
             email: loginEmail[0],
             joined: new Date()
           })
-          .then(result => {
-            res.json('You have successfully registered.');
-          });
+          .then(result => res.json('You have successfully registered.'));
       })
       .then(trx.commit)
       .catch(trx.rollback);
@@ -77,24 +70,22 @@ app.post('/register', (req, res, next) => {
 
 app.get('/profile/:id', (req, res, next) => {
   const id = req.params.id;
-  let user;
 
   db('users')
     .where({ id })
     .select('name', 'email', 'entries', 'joined')
     .then(users => {
       if (users.length) {
-        user = users[0];
-        return res.json(user);
+        return res.json(users[0]);
+      } else {
+        res.status(404).json('User not found.');
       }
-      res.status(404).json('User not found.');
     })
     .catch(err => res.status(400).json('Unable to get user profile.'));
 });
 
 app.put('/image', (req, res, next) => {
   const { id } = req.body;
-  let user;
 
   db('users')
     .where({ id })
