@@ -77,27 +77,21 @@ app.get('/profile/:id', (req, res, next) => {
         user = users[0];
         return res.json(user);
       }
-      return res.status(404).json('User not found.');
+      res.status(404).json('User not found.');
     })
-    .catch(err => res.status(400).json('Error getting user profile.'));
+    .catch(err => res.status(400).json('Unable to get user profile.'));
 });
 
 app.put('/image', (req, res, next) => {
   const { id } = req.body;
   let user;
 
-  database.users.forEach(u => {
-    if (u.id === id) {
-      u.entries++;
-      user = u;
-    }
-  });
-
-  if (user) {
-    res.json(user.entries);
-  } else {
-    res.status(404).json('User not found.');
-  }
+  db('users')
+    .where({ id })
+    .increment('entries', 1)
+    .returning('entries')
+    .then(data => res.json(Number(data[0])))
+    .catch(err => res.status(400).json('Unable to get user entries.'));
 });
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
