@@ -54,15 +54,25 @@ app.post('/register', (req, res, next) => {
   const { name, email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 12);
 
-  db('users')
-    .insert({ name: name, email: email, joined: new Date() })
-    .then(result => {
-      return db('login').insert({ hash: hashedPassword, email: email });
-    })
-    .then(result => {
-      res.json('You have successfully registered.');
-    })
-    .catch(err => res.status(400).json('Unable to register.'));
+  db.transaction(trx => {
+    trx
+      .insert({ hash: hashedPassword, email: email })
+      .into('login')
+      .returning('email')
+      .then(loginEmail => {
+        return trx('users')
+          .insert({
+            name: name,
+            email: loginEmail[0],
+            joined: new Date()
+          })
+          .then(result => {
+            res.json('You have successfully registered.');
+          });
+      })
+      .then(trx.commit)
+      .catch(trx.rollback);
+  }).catch(err => res.status(400).json('Unable to register.'));
 });
 
 app.get('/profile/:id', (req, res, next) => {
