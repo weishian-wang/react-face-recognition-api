@@ -7,9 +7,8 @@ exports.handleGetProfile = (req, res, next, db) => {
     .then(users => {
       if (users.length) {
         return res.json(users[0]);
-      } else {
-        res.status(404).json('User not found.');
       }
+      res.status(404).json('User not found.');
     })
     .catch(err => res.status(400).json('Unable to get user profile.'));
 };
