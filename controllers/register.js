@@ -4,7 +4,10 @@ const { body, validationResult } = require('express-validator/check');
 exports.handleRegister = db => (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json(errors.array());
+    const errorMessages = errors.array().map(e => {
+      return { msg: e.msg };
+    });
+    return res.status(422).json(errorMessages);
   }
 
   const { name, email, password } = req.body;
@@ -34,7 +37,9 @@ exports.validate = () => {
     body('name')
       .isString()
       .isLength({ min: 2, max: 50 })
-      .withMessage('Your name must at least be 2 characters long and not exceed 50 characters.')
+      .withMessage(
+        'Your name must at least be 2 characters long and not exceed 50 characters.'
+      )
       .trim(),
     body('email')
       .isEmail()

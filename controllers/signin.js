@@ -4,7 +4,10 @@ const { body, validationResult } = require('express-validator/check');
 exports.handleSingIn = db => (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json(errors.array());
+    const errorMessages = errors.array().map(e => {
+      return { msg: e.msg };
+    });
+    return res.status(422).json(errorMessages);
   }
 
   const { email, password } = req.body;
