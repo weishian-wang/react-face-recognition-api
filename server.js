@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const signinController = require('./controllers/signin');
 const registerController = require('./controllers/register');
 const profileController = require('./controllers/profile');
-const image = require('./controllers/image');
+const imageController = require('./controllers/image');
 
 const app = express();
 const port = 8080;
@@ -41,10 +41,16 @@ app.post(
 
 app.get('/profile/:id', profileController.handleGetProfile(db));
 
-app.post('/imageurl', image.handleApiCall);
+app.post(
+  '/imageurl',
+  imageController.validate('imageUrl'),
+  imageController.handleApiCall
+);
 
-app.put('/image', (req, res, next) => {
-  image.handleImage(req, res, next, db);
-});
+app.put(
+  '/image',
+  imageController.validate('userID'),
+  imageController.handleImage(db)
+);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));

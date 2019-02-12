@@ -1,25 +1,49 @@
 const Clarifai = require('clarifai');
+const { body, validationResult } = require('express-validator/check');
 
 const app = new Clarifai.App({
   apiKey: 'f1e09f227ca843f29d7c628d9a25eeff'
 });
 
 exports.handleApiCall = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors.array());
+  }
+
   const imageUrl = req.body.imageUrl;
-  
   app.models
     .predict(Clarifai.FACE_DETECT_MODEL, imageUrl)
     .then(data => res.json(data))
     .catch(err => res.status(400).json('Unable to work with API.'));
 };
 
-exports.handleImage = (req, res, next, db) => {
-  const id = req.body.id;
+exports.handleImage = db => (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors.array());
+  }
 
+  const id = req.body.id;
   db('users')
     .where({ id })
     .increment('entries', 1)
     .returning('entries')
     .then(data => res.json(Number(data[0])))
-    .catch(err => res.status(400).json('Unable to get user entries.'));
+    .catch(err => res.status(400).json('Unable to update user entries.'));
+};
+
+exports.validate = method => {
+  switch (method) {
+    case 'imageUrl': {
+      return [
+        body('imageUrl')
+          .isURL()
+          .withMessage('Please enter a valid image URL.')
+      ];
+    }
+    case 'userID': {
+      return [body('id').isNumeric()];
+    }
+  }
 };
