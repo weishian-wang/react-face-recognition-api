@@ -1,11 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const knex = require('knex');
 const helmet = require('helmet');
 
-const signin = require('./controllers/signin');
+const signinController = require('./controllers/signin');
 const register = require('./controllers/register');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
@@ -23,12 +24,15 @@ const db = knex({
 });
 
 app.use(bodyParser.json());
+app.use(expressValidator());
 app.use(cors());
 app.use(helmet());
 
-app.post('/signin', (req, res, next) => {
-  signin.handleSingIn(req, res, next, db, bcrypt);
-});
+app.post(
+  '/signin',
+  signinController.validate(),
+  signinController.handleSingIn(db)
+);
 
 app.post('/register', (req, res, next) => {
   register.handleRegister(req, res, next, db, bcrypt);
