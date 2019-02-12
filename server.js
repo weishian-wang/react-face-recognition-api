@@ -1,14 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
-const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const knex = require('knex');
 const helmet = require('helmet');
 
 const signinController = require('./controllers/signin');
-const register = require('./controllers/register');
-const profile = require('./controllers/profile');
+const registerController = require('./controllers/register');
+const profileController = require('./controllers/profile');
 const image = require('./controllers/image');
 
 const app = express();
@@ -34,13 +33,13 @@ app.post(
   signinController.handleSingIn(db)
 );
 
-app.post('/register', (req, res, next) => {
-  register.handleRegister(req, res, next, db, bcrypt);
-});
+app.post(
+  '/register',
+  registerController.validate(),
+  registerController.handleRegister(db)
+);
 
-app.get('/profile/:id', (req, res, next) => {
-  profile.handleGetProfile(req, res, next, db);
-});
+app.get('/profile/:id', profileController.handleGetProfile(db));
 
 app.post('/imageurl', image.handleApiCall);
 

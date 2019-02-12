@@ -1,4 +1,4 @@
-exports.handleGetProfile = (req, res, next, db) => {
+exports.handleGetProfile = db => (req, res, next) => {
   const id = req.params.id;
 
   db('users')
