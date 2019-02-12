@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const knex = require('knex');
+const helmet = require('helmet');
 
 const signin = require('./controllers/signin');
 const register = require('./controllers/register');
@@ -23,6 +24,7 @@ const db = knex({
 
 app.use(bodyParser.json());
 app.use(cors());
+app.use(helmet());
 
 app.post('/signin', (req, res, next) => {
   signin.handleSingIn(req, res, next, db, bcrypt);
@@ -36,9 +38,7 @@ app.get('/profile/:id', (req, res, next) => {
   profile.handleGetProfile(req, res, next, db);
 });
 
-app.post('/imageurl', (req, res, next) => {
-  image.handleApiCall(req, res, next);
-});
+app.post('/imageurl', image.handleApiCall);
 
 app.put('/image', (req, res, next) => {
   image.handleImage(req, res, next, db);

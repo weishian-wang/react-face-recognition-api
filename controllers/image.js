@@ -6,6 +6,7 @@ const app = new Clarifai.App({
 
 exports.handleApiCall = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
+  
   app.models
     .predict(Clarifai.FACE_DETECT_MODEL, imageUrl)
     .then(data => res.json(data))
