@@ -11,6 +11,7 @@ const signinController = require('./controllers/signin');
 const registerController = require('./controllers/register');
 const profileController = require('./controllers/profile');
 const imageController = require('./controllers/image');
+const isAuth = require('./middleware/isAuth');
 
 const app = express();
 const port = process.env.PORT;
@@ -41,16 +42,18 @@ app.post(
   registerController.handleRegister(db)
 );
 
-app.get('/profile/:id', profileController.handleGetProfile(db));
+app.get('/profile/:id', isAuth, profileController.handleGetProfile(db));
 
 app.post(
   '/imageurl',
+  isAuth,
   imageController.validate('imageUrl'),
   imageController.handleApiCall
 );
 
 app.put(
   '/image',
+  isAuth,
   imageController.validate('userID'),
   imageController.handleImage(db)
 );

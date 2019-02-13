@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator/check');
+const jwt = require('jsonwebtoken');
 
 exports.handleSingIn = db => (req, res, next) => {
   const errors = validationResult(req);
@@ -21,7 +22,14 @@ exports.handleSingIn = db => (req, res, next) => {
         return db('users')
           .where({ email })
           .select()
-          .then(userData => res.json(userData[0]))
+          .then(userData => {
+            const token = jwt.sign(
+              { user_id: userData[0].user_id },
+              process.env.JWT_SECRET_KEY,
+              { expiresIn: '1h' }
+            );
+            return res.json({ token: token, userData: userData[0] });
+          })
           .catch(err => res.status(404).json('Unable to get user.'));
       } else {
         res.status(400).json('Wrong credentials.');
