@@ -1,8 +1,8 @@
 exports.handleGetProfile = db => (req, res, next) => {
-  const id = req.params.id;
+  const user_id = req.params.id;
 
   db('users')
-    .where({ id })
+    .where({ user_id })
     .select('name', 'email', 'entries', 'joined')
     .then(users => {
       if (users.length) {

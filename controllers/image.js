@@ -30,9 +30,9 @@ exports.handleImage = db => (req, res, next) => {
     return res.status(422).json(errorMessages);
   }
 
-  const id = req.body.id;
+  const user_id = req.body.user_id;
   db('users')
-    .where({ id })
+    .where({ user_id })
     .increment('entries', 1)
     .returning('entries')
     .then(data => res.json(Number(data[0])))
@@ -49,7 +49,7 @@ exports.validate = method => {
       ];
     }
     case 'userID': {
-      return [body('id').isNumeric()];
+      return [body('user_id', 'Not valid.').isUUID()];
     }
   }
 };
