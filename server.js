@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
@@ -11,14 +13,14 @@ const profileController = require('./controllers/profile');
 const imageController = require('./controllers/image');
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT;
 const db = knex({
-  client: 'pg',
+  client: process.env.DB_CLIENT,
   connection: {
-    host: '127.0.0.1',
-    user: 'postgres',
-    password: 'test',
-    database: 'smart-brain'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
   }
 });
 

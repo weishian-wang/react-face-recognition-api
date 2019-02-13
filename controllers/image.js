@@ -2,7 +2,7 @@ const Clarifai = require('clarifai');
 const { body, validationResult } = require('express-validator/check');
 
 const app = new Clarifai.App({
-  apiKey: 'f1e09f227ca843f29d7c628d9a25eeff'
+  apiKey: process.env.CLARIFAI_API_KEY
 });
 
 exports.handleApiCall = (req, res, next) => {
