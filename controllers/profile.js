@@ -5,7 +5,7 @@ exports.handleGetProfile = db => (req, res, next) => {
 
   db('users')
     .where({ user_id })
-    .select('name', 'email', 'entries', 'joined')
+    .select()
     .then(users => {
       if (users.length) {
         return res.json(users[0]);
