@@ -1,6 +1,8 @@
 const Clarifai = require('clarifai');
 const { body, validationResult } = require('express-validator/check');
 
+const handleError = require('../util/handleError');
+
 const app = new Clarifai.App({
   apiKey: process.env.CLARIFAI_API_KEY
 });
@@ -8,26 +10,20 @@ const app = new Clarifai.App({
 exports.handleApiCall = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(e => {
-      return { msg: e.msg };
-    });
-    return res.status(422).json(errorMessages);
+    throw handleError('Validation failed.', 422, errors.array());
   }
 
   const imageUrl = req.body.imageUrl;
   app.models
     .predict(Clarifai.FACE_DETECT_MODEL, imageUrl)
     .then(data => res.json(data))
-    .catch(err => res.status(400).json('Unable to work with API.'));
+    .catch(err => next(handleError('Unable to work with API.', 500, null)));
 };
 
 exports.handleImage = db => (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(e => {
-      return { msg: e.msg };
-    });
-    return res.status(422).json(errorMessages);
+    throw handleError('Validation failed.', 422, errors.array());
   }
 
   const user_id = req.body.user_id;
@@ -36,7 +32,7 @@ exports.handleImage = db => (req, res, next) => {
     .increment('entries', 1)
     .returning('entries')
     .then(data => res.json(Number(data[0])))
-    .catch(err => res.status(400).json('Unable to update user entries.'));
+    .catch(err => next(handleError('Unable to update user entries.', 500, null)));
 };
 
 exports.validate = method => {
@@ -45,11 +41,11 @@ exports.validate = method => {
       return [
         body('imageUrl')
           .isURL()
-          .withMessage('Please enter a valid image URL.')
+          .withMessage('Entered image URL is invalid.')
       ];
     }
     case 'userID': {
-      return [body('user_id', 'Not valid.').isUUID()];
+      return [body('user_id', 'Invalid user ID.').isUUID()];
     }
   }
 };

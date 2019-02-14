@@ -1,3 +1,5 @@
+const handleError = require('../util/handleError');
+
 exports.handleGetProfile = db => (req, res, next) => {
   const user_id = req.params.id;
 
@@ -8,7 +10,7 @@ exports.handleGetProfile = db => (req, res, next) => {
       if (users.length) {
         return res.json(users[0]);
       }
-      res.status(404).json('User not found.');
+      next(handleError('User not found.', 404, null));
     })
-    .catch(err => res.status(400).json('Unable to get user profile.'));
+    .catch(err => next(handleError('Unable to get user info.', 500, null)));
 };

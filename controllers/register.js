@@ -1,13 +1,12 @@
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator/check');
 
+const handleError = require('../util/handleError');
+
 exports.handleRegister = db => (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(e => {
-      return { msg: e.msg };
-    });
-    return res.status(422).json(errorMessages);
+    throw handleError('Validation failed.', 422, errors.array());
   }
 
   const { name, email, password } = req.body;
@@ -25,11 +24,11 @@ exports.handleRegister = db => (req, res, next) => {
             email: loginEmail[0],
             joined: new Date()
           })
-          .then(result => res.json('You have successfully registered.'));
+          .then(result => res.status(200).json('You have successfully registered.'));
       })
       .then(trx.commit)
       .catch(trx.rollback);
-  }).catch(err => res.status(400).json('Unable to register.'));
+  }).catch(err => next(handleError('Unable to register user.', 500, null)));
 };
 
 exports.validate = () => {
