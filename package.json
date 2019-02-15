@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "engines": {
-    "node": "10.15.0"
+    "node": "10.15.0",
+    "npm": "6.8.0"
   },
   "scripts": {
     "start": "nodemon server.js"
