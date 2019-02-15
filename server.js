@@ -28,6 +28,10 @@ app.use(expressValidator());
 app.use(cors());
 app.use(helmet());
 
+app.get('/', (req, res, next) => {
+  res.send('Server is running!');
+});
+
 app.post(
   '/signin',
   signinController.validate(),
@@ -40,11 +44,7 @@ app.post(
   registerController.handleRegister(db)
 );
 
-app.get(
-  '/profile/:id',
-  isAuth,
-  profileController.handleGetProfile(db)
-);
+app.get('/profile/:id', isAuth, profileController.handleGetProfile(db));
 
 app.post(
   '/imageurl',
