@@ -31,7 +31,7 @@ exports.handleImage = db => (req, res, next) => {
     .where({ user_id })
     .increment('entries', 1)
     .returning('entries')
-    .then(data => res.json(Number(data[0])))
+    .then(data => res.json(data[0]))
     .catch(err => next(handleError('Unable to update user entries.', 500, null)));
 };
 
