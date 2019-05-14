@@ -19,6 +19,6 @@ My [Face Recognition App](https://react-face-detection.herokuapp.com/) is hostin
 
 ## Screenshots
 
-[![Front-End-screenshot.png](https://i.postimg.cc/hPv5G4rd/Front-End-screenshot.png)](https://postimg.cc/RNrRsB2S)
+[![Front-End-screenshot-01.png](https://i.postimg.cc/Bb9hzsjx/Front-End-screenshot-01.png)](https://postimg.cc/gXsqwCqJ)
 
 [![Front-End-screenshot-02.png](https://i.postimg.cc/rsK5bV0z/Front-End-screenshot-02.png)](https://postimg.cc/D43W4KcK)
